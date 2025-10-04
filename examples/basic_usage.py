@@ -1,34 +1,49 @@
 """
-Basic Usage Examples for Maya Legal Intelligence
-==============================================
+Basic Usage Examples for Symbolic Legal Intelligence
+===================================================
 """
 
-from maya_legal_intelligence import MayaLegalAnalyzer, LegalDocumentProcessor
+from maya_legal_intelligence import SymbolicLegalIntelligence, LegalDocumentProcessor, LEGAL_SYMBOLS
 
 
 def example_basic_analysis():
-    """Basic legal document analysis example"""
+    """Basic legal document analysis example using symbolic intelligence"""
     
     # Sample legal text
     legal_text = """
-    This Employment Agreement is entered into between the Company and the Employee.
-    The Employee agrees to perform duties in accordance with company policies.
-    Any violation of this agreement may result in termination and legal penalties.
-    The Company shall provide fair compensation and maintain workplace justice.
+    ARTICLE I - CONSTITUTIONAL RIGHTS
+    
+    Section 1. All citizens shall have equal protection under the law.
+    The court must determine if constitutional violations have occurred.
+    
+    Section 2. Criminal penalties may include imprisonment up to 10 years
+    and fines not exceeding $50,000 for violations of federal statutes.
+    
+    Procedural Requirements:
+    - All motions must be filed within 30 days
+    - Defendants shall have right to legal counsel
+    - Evidence must be presented according to established procedures
     """
     
     # Initialize analyzer
-    analyzer = MayaLegalAnalyzer()
+    analyzer = SymbolicLegalIntelligence()
     
     # Perform analysis
-    result = analyzer.analyze_legal_document(legal_text)
+    elements = analyzer.analyze_legal_document("sample_legal_doc.txt", legal_text)
     
-    print("🏛️ Maya Legal Intelligence Analysis")
+    print("⟐ Symbolic Legal Intelligence Analysis")
     print("=" * 50)
-    print(f"Maya Symbols: {result['maya_encoding']['symbols']}")
-    print(f"Legal Category: {result['maya_encoding']['category']}")
-    print(f"Confidence: {result['maya_encoding']['confidence']:.2%}")
-    print(f"Final Classification: {result['fusion_result']['final_category']}")
+    print(f"Total Elements Found: {len(elements)}")
+    print()
+    
+    # Display by symbol type
+    for symbol_name, symbol in LEGAL_SYMBOLS.items():
+        symbol_elements = [e for e in elements if e.symbol_name == symbol_name]
+        if symbol_elements:
+            print(f"{symbol} {symbol_name} ({len(symbol_elements)} elements):")
+            for element in symbol_elements[:3]:  # Show first 3
+                print(f"   • {element.name} (complexity: {element.complexity_score})")
+            print()
 
 
 def example_document_processing():
@@ -38,16 +53,25 @@ def example_document_processing():
     processor = LegalDocumentProcessor()
     
     # Create sample document
-    sample_doc = "sample_contract.txt"
+    sample_doc = "sample_legal_contract.txt"
     with open(sample_doc, 'w') as f:
         f.write("""
         LEGAL SERVICES AGREEMENT
         
-        This agreement establishes the terms for legal representation.
-        The attorney shall provide competent legal services with justice and fairness.
-        Client agrees to pay fees as specified in the fee schedule.
-        Any disputes shall be resolved through appropriate court procedures.
-        Evidence of performance shall be documented and maintained.
+        ARTICLE I - SCOPE OF SERVICES
+        Section 1.1. Attorney shall provide competent legal representation.
+        Section 1.2. Client agrees to cooperate fully with legal procedures.
+        
+        ARTICLE II - COMPENSATION
+        Section 2.1. Client shall pay fees as specified in Schedule A.
+        Section 2.2. Payment must be made within 30 days of invoice.
+        
+        ARTICLE III - TERMINATION
+        Section 3.1. Either party may terminate with 30 days written notice.
+        Section 3.2. Upon termination, all pending matters shall be resolved.
+        
+        PENALTIES: Violation of this agreement may result in damages
+        up to $25,000 and immediate termination of services.
         """)
     
     # Process document
@@ -55,10 +79,27 @@ def example_document_processing():
     
     print("\n📄 Document Processing Result")
     print("=" * 50)
-    print(f"File: {result['file_metadata']['path']}")
-    print(f"Size: {result['file_metadata']['size']} bytes")
-    print(f"Legal Symbols: {result['symbolic_analysis']['symbols']}")
-    print(f"Domain: {result['symbolic_analysis']['classification']['domain']}")
+    
+    if "error" not in result:
+        summary = result["analysis_summary"]
+        print(f"File: {result['file_metadata']['path']}")
+        print(f"Size: {result['file_metadata']['size']} bytes")
+        print(f"Total Elements: {summary['total_elements']}")
+        print(f"Primary Domain: {summary['primary_legal_domain']}")
+        print(f"Average Complexity: {summary['average_complexity']}")
+        print()
+        
+        print("Symbol Distribution:")
+        for symbol_name, count in summary['symbol_distribution'].items():
+            symbol = LEGAL_SYMBOLS[symbol_name]
+            print(f"   {symbol} {symbol_name}: {count}")
+        
+        print()
+        print("Legal Insights:")
+        insights = result["legal_insights"]
+        print(f"   Complexity: {insights['complexity_assessment']}")
+        print(f"   Risk Indicators: {len(insights['legal_risk_indicators'])}")
+        print(f"   Key Concepts: {len(insights['key_legal_concepts'])}")
     
     # Cleanup
     import os
@@ -70,9 +111,26 @@ def example_batch_processing():
     
     # Create sample documents
     documents = {
-        "contract1.txt": "This contract establishes terms for service provision with penalties for breach.",
-        "criminal_case.txt": "The defendant is charged with violation of criminal statutes requiring court judgment.",
-        "constitutional.txt": "This amendment protects fundamental rights and freedoms of all citizens."
+        "constitutional_law.txt": """
+        AMENDMENT XIV - EQUAL PROTECTION
+        Section 1. No State shall deny any person equal protection of the laws.
+        The Supreme Court shall have jurisdiction to review constitutional violations.
+        Penalties for constitutional violations may include federal intervention.
+        """,
+        
+        "criminal_code.txt": """
+        CRIMINAL CODE SECTION 187 - HOMICIDE
+        Any person who unlawfully kills another shall be guilty of murder.
+        Penalties: Imprisonment for 25 years to life or death penalty.
+        Procedural requirements: Defendant must be informed of charges within 48 hours.
+        """,
+        
+        "commercial_contract.txt": """
+        COMMERCIAL SALES AGREEMENT
+        Section 1. Seller agrees to deliver goods according to specifications.
+        Section 2. Buyer shall pay within 30 days of delivery.
+        Breach of contract may result in damages up to $100,000.
+        """
     }
     
     # Create files
@@ -88,16 +146,28 @@ def example_batch_processing():
     
     print("\n📊 Batch Processing Results")
     print("=" * 50)
-    print(f"Total Processed: {batch_result['total_processed']}")
-    print(f"Successful: {batch_result['successful']}")
-    print(f"Failed: {batch_result['failed']}")
+    
+    summary = batch_result["batch_summary"]
+    print(f"Total Documents: {summary['total_documents']}")
+    print(f"Successful: {summary['successful_analyses']}")
+    print(f"Failed: {summary['failed_analyses']}")
+    print(f"Success Rate: {summary['success_rate']}")
+    print()
+    
+    print("Aggregate Statistics:")
+    agg_stats = summary["aggregate_statistics"]
+    print(f"   Total Elements: {agg_stats['total_legal_elements']}")
+    print(f"   Domains: {', '.join(agg_stats['domain_distribution'].keys())}")
+    print()
     
     # Show individual results
     for doc_path, result in batch_result['batch_results'].items():
         if 'error' not in result:
-            category = result['fusion_result']['final_category']
-            confidence = result['fusion_result']['confidence']
-            print(f"  {doc_path}: {category} ({confidence:.1%})")
+            analysis = result['analysis_summary']
+            print(f"📄 {doc_path}:")
+            print(f"   Domain: {analysis['primary_legal_domain']}")
+            print(f"   Elements: {analysis['total_elements']}")
+            print(f"   Complexity: {analysis['average_complexity']}")
     
     # Cleanup
     import os
@@ -105,37 +175,65 @@ def example_batch_processing():
         os.remove(filename)
 
 
-def example_symbolic_mapping():
-    """Symbolic mapping example"""
+def example_symbolic_analysis():
+    """Symbolic analysis example showing all four symbols"""
     
-    from maya_legal_intelligence.utils import LegalSymbolMapper
+    complex_legal_text = """
+    UNITED STATES CONSTITUTION - ARTICLE I
     
-    mapper = LegalSymbolMapper()
+    Section 8. The Congress shall have Power:
+    - To regulate Commerce among the several States
+    - To establish Post Offices and post Roads
+    - To declare War and maintain armed Forces
     
-    legal_texts = [
-        "The court shall ensure justice is served fairly",
-        "This contract binds both parties to the agreement", 
-        "Evidence must be presented to support the case",
-        "Penalties apply for violation of these regulations"
-    ]
+    CRIMINAL PENALTIES: Violation of federal commerce regulations
+    may result in imprisonment up to 20 years and fines up to $1,000,000.
     
-    print("\n🔮 Symbolic Mapping Examples")
+    PROCEDURAL REQUIREMENTS:
+    1. All cases must be filed in federal district court
+    2. Defendants shall have right to jury trial
+    3. Appeals must be filed within 30 days of judgment
+    
+    JUDICIAL REVIEW: The Supreme Court shall determine the constitutionality
+    of all federal legislation and may declare laws unconstitutional.
+    """
+    
+    analyzer = SymbolicLegalIntelligence()
+    elements = analyzer.analyze_legal_document("complex_legal_doc.txt", complex_legal_text)
+    
+    print("\n🔮 Symbolic Analysis Examples")
     print("=" * 50)
     
-    for text in legal_texts:
-        symbols = mapper.map_text_to_symbols(text)
-        print(f"Text: {text[:40]}...")
-        print(f"Symbols: {[s[0] for s in symbols[:3]]}")
-        print()
+    # Group by symbol type
+    symbol_groups = {}
+    for element in elements:
+        symbol_name = element.symbol_name
+        if symbol_name not in symbol_groups:
+            symbol_groups[symbol_name] = []
+        symbol_groups[symbol_name].append(element)
+    
+    # Display each symbol type
+    for symbol_name, symbol in LEGAL_SYMBOLS.items():
+        if symbol_name in symbol_groups:
+            group_elements = symbol_groups[symbol_name]
+            print(f"\n{symbol} {symbol_name} - {len(group_elements)} elements:")
+            
+            for element in group_elements:
+                print(f"   • {element.name}")
+                print(f"     Complexity: {element.complexity_score}")
+                print(f"     Description: {element.description}")
+                print()
 
 
 if __name__ == "__main__":
-    print("🚀 Maya Legal Intelligence - Usage Examples")
+    print("🚀 Symbolic Legal Intelligence - Usage Examples")
     print("=" * 60)
     
     example_basic_analysis()
     example_document_processing()
     example_batch_processing()
-    example_symbolic_mapping()
+    example_symbolic_analysis()
     
     print("\n✅ All examples completed successfully!")
+    print("🔮 Symbolic Intelligence provides universal understanding of legal documents!")
+    print("⟐ ⧈ ◈ ⟡ - Four symbols for complete legal analysis")

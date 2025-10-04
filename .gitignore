@@ -258,6 +258,17 @@ ATTORNEY_CLIENT_*
 *.pyo.obf
 obf_*
 _obf_*
+obfuscate_symbolic.py
+obfuscation_map.json
+
+# Symbolic Intelligence Obfuscated Code
+obfuscated/
+*.obfuscated
+_0x*
+
+# Test files (keep out of production)
+test_symbolic_intelligence.py
+test_*.py
 
 # Security sensitive
 private_keys/
