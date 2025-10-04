@@ -140,8 +140,11 @@ cython_debug/
 # VS Code
 .vscode/
 
-# Maya Legal Intelligence Specific
-# ================================
+# Symbolic Legal Intelligence Specific
+# ====================================
+
+# Analysis cache
+.legal_analysis_cache/
 
 # Obfuscated source files
 *.obf
